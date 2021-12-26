@@ -3,6 +3,7 @@
 import os
 
 from app.binary_file import BinaryFile
+from app.spasavanje import Spasavanje
 
 
 class SerialFile(BinaryFile):
@@ -72,6 +73,39 @@ class SerialFile(BinaryFile):
                         return None
 
                 i += 1
+
+    def change_by_id(self, id):
+        found = self.find_by_id(id)
+        if not found:
+            return
+        block_idx = found[0]
+        rec_idx = found[1]
+        with open(self.filename, "rb+") as f:
+            f.seek(block_idx * self.block_size)
+            block = self.read_block(f)
+            temp = block[rec_idx]
+            #print(temp)
+            temp2 = Spasavanje()
+            temp2.postavi_vrednost(temp)
+            temp2.promena_vrednosti()
+            block[rec_idx] = temp2.vrati_vrednost()
+
+            f.seek(-1 * self.block_size, 1)
+            self.write_block(f, block)
+
+    def logical_delete_by_id(self,id):
+        found = self.find_by_id(id)
+        if not found:
+            return
+        block_idx = found[0]
+        rec_idx = found[1]
+        with open(self.filename, "rb+") as f:
+            f.seek(block_idx * self.block_size)
+            block = self.read_block(f)
+            temp = block[rec_idx]
+            temp["status"] = 0
+            f.seek(-1 * self.block_size, 1)
+            self.write_block(f, block)
 
     def delete_by_id(self, id):
         found = self.find_by_id(id)
