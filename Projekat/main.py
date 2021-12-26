@@ -15,7 +15,8 @@ if __name__ == '__main__':
               "1.formiranje prazne datoteke pri čemu korisnik zadaje naziv nove datoteke\n"
               "2.izbor aktivne datoteke zadavanjem njenog naziva\n"
               "3.prikaz naziva aktivne datoteke\n"
-              "4.vodeće serijske datoteke promena")
+              "4.vodeće serijske datoteke promena\n"
+              "5.sekvencijalne datoteke promena")
         unos = int(input("Unesite ovde opciju:"))
         if(unos==0):
             break
@@ -72,7 +73,19 @@ if __name__ == '__main__':
                         rec = Record(ATTRIBUTES, FMT, CODING)
                         binary_file_serial = SerialFile(putanja, rec, F)
                         binary_file_serial.delete_by_id(int(input("Unesite evidencioni broj:")))
-
+        if unos==5:
+            if binary_file!="":
+                putanja = binary_file.filename.split(".")[0] + "serial.dat"
+                rec = Record(ATTRIBUTES, FMT, CODING)
+                binary_file_serial = SerialFile(putanja, rec, F)
+                lista = binary_file_serial.get_sorted_content_of_file()
+                putanjaDruga = binary_file.filename.split(".")[0] + "sequential.dat"
+                rec = Record(ATTRIBUTES, FMT, CODING)
+                binary_file_sequential = SequentialFile(putanjaDruga, rec, F)
+                if not exists(putanjaDruga):
+                    binary_file_sequential.init_file()
+                for i in lista:
+                    binary_file_sequential.insert_record(i)
 
 
 

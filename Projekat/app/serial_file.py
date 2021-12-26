@@ -60,6 +60,24 @@ class SerialFile(BinaryFile):
                 print("Block {}".format(i))
                 self.print_block(block)
 
+    def get_sorted_content_of_file(self):
+
+        lista = []
+        with open(self.filename, "rb") as f:
+            while True:
+                block = self.read_block(f)
+                if not block:
+                    break
+                for i in range(self.blocking_factor):
+                    if block[i].get("id") == self.empty_key:
+                        break
+                    lista.append(block[i])
+        for i in range(len(lista)):
+            for j in range(0,len(lista)-i-1):
+                if lista[i].get("id") > lista [j+1].get("id"):
+                    lista[j], lista[j+1] = lista[j+1], lista[j]
+        return lista
+
     def find_by_id(self, id):
         i = 0
         with open(self.filename, "rb") as f:
