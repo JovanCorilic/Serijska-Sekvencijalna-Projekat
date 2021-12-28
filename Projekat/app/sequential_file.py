@@ -14,6 +14,16 @@ class SequentialFile(BinaryFile):
             block = self.blocking_factor*[self.get_empty_rec()]
             self.write_block(f, block)
 
+    def init_file_aktivna_datoteka(self):
+        with open(self.filename, "wb") as f:
+            block = self.blocking_factor*[{"id": self.empty_key, "ime_i_prezime": "", "datum_i_vreme": "", "oznaka_spasioca":"","trajanje_spasavanja":0,"status": 0}]
+            self.write_block(f, block)
+
+    def init_file_datoteka_gresaka(self):
+        with open(self.filename, "wb") as f:
+            block = self.blocking_factor*[{"id": self.empty_key, "opis_greske": ""}]
+            self.write_block(f, block)
+
     def __find_in_block(self, block, rec):
         for j in range(self.blocking_factor):
             if block[j].get("id") == self.empty_key or block[j].get("id") > rec.get("id"):
@@ -26,6 +36,35 @@ class SequentialFile(BinaryFile):
             print("Already exists with ID {}".format(rec.get("id")))
             return
 
+        with open(self.filename, "rb+") as f:
+            while True:
+                block = self.read_block(f)
+
+                if not block:           # EOF
+                    break
+
+                last = self.__is_last(block)
+                here, j = self.__find_in_block(block, rec)
+
+                if not here:
+                    continue
+
+                # save last record for inserting into next block
+                tmp_rec = block[self.blocking_factor-1]
+                for k in range(self.blocking_factor-1, j, -1):
+                    block[k] = block[k-1]               # move records
+                block[j] = rec                          # insert
+                rec = tmp_rec                           # new record for insertion
+
+                f.seek(-self.block_size, 1)
+                self.write_block(f, block)
+
+                # last block without empty rec?
+                if last and block[self.blocking_factor-1].get("id") != self.empty_key:
+                    block = self.blocking_factor*[self.get_empty_rec()]
+                    self.write_block(f, block)
+
+    def insert_record_no_id_check(self,rec):
         with open(self.filename, "rb+") as f:
             while True:
                 block = self.read_block(f)

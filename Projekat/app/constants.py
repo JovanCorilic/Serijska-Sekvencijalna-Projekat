@@ -1,7 +1,7 @@
 #!/usr/bin/python
-#04.05.2022. 22:00
-ATTRIBUTES = ["id", "ime_i_prezime", "datum_i_vreme","oznaka_spasioca", "trajanje_spasavanja", "status"]
-FMT = "i60s17s5sii"
+# 1 - kreacija , 2 - promena, 3 - logicko brisanje, 4 - pravo brisanje
+ATTRIBUTES = ["id", "ime_i_prezime", "datum_i_vreme","oznaka_spasioca", "trajanje_spasavanja", "status","svrha"]
+FMT = "i60s17s5siii"
 CODING = "ascii"
 
 F = 5

@@ -41,6 +41,28 @@ class SerialFile(BinaryFile):
                 f.seek(-self.block_size, 1)
                 self.write_block(f, block)
 
+    def insert_record_no_id_check(self,rec):
+        with open(self.filename, "rb+") as f:
+            f.seek(-self.block_size, 2)  # citamo poslednji blok
+            block = self.read_block(f)
+
+            for i in range(self.blocking_factor):
+                if block[i].get("id") == self.empty_key:  # trazimo prvi prazan slog
+                    block[i] = rec
+                    break
+
+            i += 1
+
+            if i == self.blocking_factor:  # provera da li smo popunili trenutni blok ili ne
+                f.seek(-self.block_size, 1)
+                self.write_block(f, block)
+                block = self.blocking_factor*[self.get_empty_rec()]
+                self.write_block(f, block)
+            else:
+                block[i] = self.get_empty_rec()
+                f.seek(-self.block_size, 1)
+                self.write_block(f, block)
+
     def __is_last(self, block):
         for i in range(self.blocking_factor):  # da li blok sadrzi neki slog koji je prazan?
             if block[i].get("id") == self.empty_key:

@@ -53,4 +53,4 @@ class BinaryFile:
             print(b[i])
 
     def get_empty_rec(self):
-        return {"id": self.empty_key, "ime_i_prezime": "", "datum_i_vreme": "", "oznaka_spasioca":"","trajanje_spasavanja":0,"status": 0}
+        return {"id": self.empty_key, "ime_i_prezime": "", "datum_i_vreme": "", "oznaka_spasioca":"","trajanje_spasavanja":0,"status": 0,"svrha":-1}

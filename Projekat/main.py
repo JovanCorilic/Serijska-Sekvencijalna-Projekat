@@ -9,22 +9,32 @@ from app.spasavanje import Spasavanje
 
 
 if __name__ == '__main__':
-    binary_file =  ""
+    binary_file = ""
     while True:
         print("Sta zelite od opcija (unesite broj da odaberete, 0 za iskljucivanje programa):\n"
               "1.formiranje prazne datoteke pri čemu korisnik zadaje naziv nove datoteke\n"
               "2.izbor aktivne datoteke zadavanjem njenog naziva\n"
               "3.prikaz naziva aktivne datoteke\n"
               "4.vodeće serijske datoteke promena\n"
-              "5.sekvencijalne datoteke promena")
+              "5.sekvencijalne datoteke promena\n"
+              "6.izlazne sekvencijalne datoteke")
         unos = int(input("Unesite ovde opciju:"))
         if(unos==0):
             break
         if(unos==1):
             naziv = "data/"+str(input("Unesite naziv datoteke:"))+".dat"
-            rec = Record(ATTRIBUTES,FMT,CODING)
+            attributesTemp = ["id", "ime_i_prezime", "datum_i_vreme","oznaka_spasioca", "trajanje_spasavanja", "status"]
+            fmtTemp = "i60s17s5sii"
+            rec = Record(attributesTemp,fmtTemp,CODING)
             binary_file = SequentialFile(naziv,rec,F)
-            binary_file.init_file()
+            binary_file.init_file_aktivna_datoteka()
+
+            putanja = binary_file.filename.split(".")[0] + "serial.dat"
+            rec = Record(ATTRIBUTES, FMT, CODING)
+            binary_file_serial = SerialFile(putanja, rec, F)
+            binary_file_serial.init_file()
+
+
         if(unos==2):
             naziv="data/"+str(input("Unesite naziv aktivne datoteke:"))+".dat"
             rec = Record(ATTRIBUTES,FMT,CODING)
@@ -54,25 +64,33 @@ if __name__ == '__main__':
                             binary_file_serial.init_file()
                         temp = Spasavanje()
                         temp.pravljenje_objekta()
-                        binary_file_serial.insert_record(temp.vrati_vrednost())
+                        binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos==2:
                     if(binary_file!=""):
                         putanja = binary_file.filename.split(".")[0] + "serial.dat"
                         rec = Record(ATTRIBUTES, FMT, CODING)
                         binary_file_serial = SerialFile(putanja, rec, F)
-                        binary_file_serial.change_by_id(int(input("Unesite evidencioni broj:")))
+                        if not (exists(putanja)):
+                            binary_file_serial.init_file()
+                        temp = Spasavanje()
+                        temp.promena_vrednosti()
+                        binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos == 3:
                     if(binary_file!=""):
                         putanja = binary_file.filename.split(".")[0] + "serial.dat"
                         rec = Record(ATTRIBUTES, FMT, CODING)
                         binary_file_serial = SerialFile(putanja, rec, F)
-                        binary_file_serial.logical_delete_by_id(int(input("Unesite evidencioni broj:")))
+                        temp = Spasavanje()
+                        temp.logicko_brisanje()
+                        binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos == 4:
                     if (binary_file != ""):
                         putanja = binary_file.filename.split(".")[0] + "serial.dat"
                         rec = Record(ATTRIBUTES, FMT, CODING)
                         binary_file_serial = SerialFile(putanja, rec, F)
-                        binary_file_serial.delete_by_id(int(input("Unesite evidencioni broj:")))
+                        temp = Spasavanje()
+                        temp.pravo_brisanje()
+                        binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
         if unos==5:
             if binary_file!="":
                 putanja = binary_file.filename.split(".")[0] + "serial.dat"
@@ -82,10 +100,25 @@ if __name__ == '__main__':
                 putanjaDruga = binary_file.filename.split(".")[0] + "sequential.dat"
                 rec = Record(ATTRIBUTES, FMT, CODING)
                 binary_file_sequential = SequentialFile(putanjaDruga, rec, F)
-                if not exists(putanjaDruga):
-                    binary_file_sequential.init_file()
+
+                binary_file_sequential.init_file()
                 for i in lista:
-                    binary_file_sequential.insert_record(i)
+                    binary_file_sequential.insert_record_no_id_check(i)
+                binary_file_serial.init_file()
+        if unos==6:
+            if binary_file!="":
+                putanja = binary_file.filename.split(".")[0] + "sequential.dat"
+                putanjaGreska = binary_file.filename.split(".")[0] + "greske.dat"
+                tempAttributes = ["id", "opis_greske"]
+                tempFMT = "i100s"
+                rec = Record(tempAttributes, tempFMT, CODING)
+                binary_file_greska = SequentialFile(putanjaGreska, rec, F)
+                binary_file_greska.init_file_datoteka_gresaka()
+
+
+
+
+
 
 
 
