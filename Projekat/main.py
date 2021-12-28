@@ -108,12 +108,30 @@ if __name__ == '__main__':
         if unos==6:
             if binary_file!="":
                 putanja = binary_file.filename.split(".")[0] + "sequential.dat"
+                rec = Record(ATTRIBUTES, FMT, CODING)
+                binary_file_sequential = SequentialFile(putanja, rec, F)
+
                 putanjaGreska = binary_file.filename.split(".")[0] + "greske.dat"
                 tempAttributes = ["id", "opis_greske"]
                 tempFMT = "i100s"
                 rec = Record(tempAttributes, tempFMT, CODING)
                 binary_file_greska = SequentialFile(putanjaGreska, rec, F)
                 binary_file_greska.init_file_datoteka_gresaka()
+
+                putanja = binary_file.filename.split(".")[0] + "izlazna.dat"
+                attributesTemp = ["id", "ime_i_prezime", "datum_i_vreme", "oznaka_spasioca", "trajanje_spasavanja",
+                                  "status"]
+                fmtTemp = "i60s17s5sii"
+                rec = Record(attributesTemp, fmtTemp, CODING)
+                binary_file_izlazna = SequentialFile(putanja,rec,F)
+                binary_file_izlazna.init_file_aktivna_datoteka()
+                binary_file_izlazna.kopiranje(binary_file)
+
+                lista = binary_file_sequential.mergovanje_izlazne_aktivne(binary_file_izlazna,binary_file_greska)
+                binary_file_izlazna.print_file()
+        if unos == 7:
+            if binary_file!="":
+                binary_file.print_file()
 
 
 

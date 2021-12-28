@@ -64,6 +64,11 @@ class SequentialFile(BinaryFile):
                     block = self.blocking_factor*[self.get_empty_rec()]
                     self.write_block(f, block)
 
+    def kopiranje(self, aktivna):
+        with open(aktivna.filename, "rb") as f:
+            self.insert_record(aktivna.read_record(f))
+
+
     def insert_record_no_id_check(self,rec):
         with open(self.filename, "rb+") as f:
             while True:
@@ -109,7 +114,7 @@ class SequentialFile(BinaryFile):
                     break
 
                 i += 1
-                print("Block {}".format(i))
+                print("Block {}".format(i) + " Broj bloka "+ i)
                 self.print_block(block)
 
     def find_by_id(self, id):
@@ -128,6 +133,73 @@ class SequentialFile(BinaryFile):
                         return None
 
                 i += 1
+
+    def mergovanje_izlazne_aktivne(self, aktivna,error):
+        br = 0
+        with open(self.filename, "rb+") as f:
+            temp = self.read_record(f)
+            if temp["svrha"] == 1:
+                if aktivna.find_by_id(temp["id"]) is not None:
+                    br+=1
+                    error.insert_record({"id":br,"opis_greske":"Vec postoji sa tim evidencionim brojem"})
+                else:
+                    aktivna.insert_record(temp)
+            elif temp["svrha"] == 2:
+                if aktivna.find_by_id(temp["id"]) is None:
+                    br+=1
+                    error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem"})
+                else:
+                    aktivna.change_by_id(temp)
+            elif temp["svrha"] == 3:
+                if aktivna.find_by_id(temp["id"]) is None:
+                    br += 1
+                    error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem"})
+                else:
+                    aktivna.logical_delete_by_id(temp)
+            elif temp["svrha"] == 4:
+                if aktivna.find_by_id(temp["id"]) is None:
+                    br += 1
+                    error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem"})
+                else:
+                    aktivna.delete_by_id(temp["id"])
+
+
+    def change_by_id(self, promena):
+        found = self.find_by_id(promena["id"])
+        if not found:
+            return 0
+        block_idx = found[0]
+        rec_idx = found[1]
+        with open(self.filename, "rb+") as f:
+            f.seek(block_idx * self.block_size)
+            block = self.read_block(f)
+            temp = block[rec_idx]
+            #print(temp)
+            if promena["ime_i_prezime"] !="":
+                temp["ime_i_prezime"] = promena["ime_i_prezime"]
+            if promena["datum_i_vreme"] !="":
+                temp["datum_i_vreme"] = promena["datum_i_vreme"]
+            if promena["oznaka_spasioca"]!="":
+                temp["oznaka_spasioca"] = promena["oznaka_spasioca"]
+            if promena["trajanje_spasavanja"] != -1:
+                temp["trajanje_spasavanja"] = promena["trajanje_spasavanja"]
+
+            f.seek(-1 * self.block_size, 1)
+            self.write_block(f, block)
+
+    def logical_delete_by_id(self,promena):
+        found = self.find_by_id(promena["id"])
+        if not found:
+            return 0
+        block_idx = found[0]
+        rec_idx = found[1]
+        with open(self.filename, "rb+") as f:
+            f.seek(block_idx * self.block_size)
+            block = self.read_block(f)
+            temp = block[rec_idx]
+            temp["status"] = 0
+            f.seek(-1 * self.block_size, 1)
+            self.write_block(f, block)
 
     def delete_by_id(self, id):
         found = self.find_by_id(id)
