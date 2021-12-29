@@ -73,10 +73,14 @@ class SequentialFile(BinaryFile):
     def kopiranje(self, aktivna):
         with open(aktivna.filename, "rb") as f:
             while True:
-                temp = aktivna.read_record(f)
-                if temp is None:
+                block = aktivna.read_block(f)
+                if not block:
                     break
-                self.insert_record(aktivna.read_record(f))
+                for i in range(5):
+                    if block[i]["id"]==-1:
+                        break
+                    self.insert_record(block[i])
+
 
 
     def insert_record_no_id_check(self,rec):
@@ -145,37 +149,40 @@ class SequentialFile(BinaryFile):
 
                 i += 1
 
-    def mergovanje_izlazne_aktivne(self, aktivna,error):
+    def mergovanje_izlazne_aktivne(self, izlazna,error):
         br = 0
         with open(self.filename, "rb+") as f:
             while True:
-                temp = self.read_record(f)
-                if temp is None:
+                block = self.read_block(f)
+                if not block:
                     break
-                if temp["svrha"] == 1:
-                    if aktivna.find_by_id(temp["id"]) is not None:
-                        br+=1
-                        error.insert_record({"id":br,"opis_greske":"Vec postoji sa tim evidencionim brojem ("+str(temp["id"])+")"})
-                    else:
-                        aktivna.insert_record({"id": temp["id"], "ime_i_prezime": temp["ime_i_prezime"], "datum_i_vreme": temp["datum_i_vreme"], "oznaka_spasioca":temp["oznaka_spasioca"],"trajanje_spasavanja":temp["trajanje_spasavanja"],"status": temp["status"]})
-                elif temp["svrha"] == 2:
-                    if aktivna.find_by_id(temp["id"]) is None:
-                        br+=1
-                        error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti promena"})
-                    else:
-                        aktivna.change_by_id(temp)
-                elif temp["svrha"] == 3:
-                    if aktivna.find_by_id(temp["id"]) is None:
-                        br += 1
-                        error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti logicko brisanje"})
-                    else:
-                        aktivna.logical_delete_by_id(temp)
-                elif temp["svrha"] == 4:
-                    if aktivna.find_by_id(temp["id"]) is None:
-                        br += 1
-                        error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti pravo brisanje"})
-                    else:
-                        aktivna.delete_by_id(temp["id"])
+                for temp in block:
+                    if temp["id"]==-1:
+                        break
+                    if temp["svrha"] == 1:
+                        if izlazna.find_by_id(temp["id"]) is not None:
+                            br+=1
+                            error.insert_record({"id":br,"opis_greske":"Vec postoji sa tim evidencionim brojem ("+str(temp["id"])+")"})
+                        else:
+                            izlazna.insert_record({"id": temp["id"], "ime_i_prezime": temp["ime_i_prezime"], "datum_i_vreme": temp["datum_i_vreme"], "oznaka_spasioca":temp["oznaka_spasioca"],"trajanje_spasavanja":temp["trajanje_spasavanja"],"status": temp["status"]})
+                    elif temp["svrha"] == 2:
+                        if izlazna.find_by_id(temp["id"]) is None:
+                            br+=1
+                            error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti promena"})
+                        else:
+                            izlazna.change_by_id(temp)
+                    elif temp["svrha"] == 3:
+                        if izlazna.find_by_id(temp["id"]) is None:
+                            br += 1
+                            error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti logicko brisanje"})
+                        else:
+                            izlazna.logical_delete_by_id(temp)
+                    elif temp["svrha"] == 4:
+                        if izlazna.find_by_id(temp["id"]) is None:
+                            br += 1
+                            error.insert_record({"id": br, "opis_greske": "Ne postoji spasavanje sa tim evidencionim brojem ("+str(temp["id"])+"), ne moze se izvrsiti pravo brisanje"})
+                        else:
+                            izlazna.delete_by_id(temp["id"])
 
 
     def change_by_id(self, promena):

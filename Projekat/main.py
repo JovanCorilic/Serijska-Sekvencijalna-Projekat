@@ -55,7 +55,10 @@ if __name__ == '__main__':
             else:
                 print("Niste odabrali aktivni fajl!")
         if(unos==4):
-            binary_file_serial=""
+            putanja = binary_file.filename.split(".")[0] + "serial.dat"
+            rec = Record(ATTRIBUTES, FMT, CODING)
+            binary_file_serial = SerialFile(putanja, rec, F)
+            binary_file_serial.init_file()
             while True:
                 print("1.Napraviti slog\n"
                       "2.Izmeniti slog\n"
@@ -67,54 +70,34 @@ if __name__ == '__main__':
                     break
                 if unos==1:
                     if(binary_file!=""):
-                        putanja = binary_file.filename.split(".")[0] + "serial.dat"
-                        rec = Record(ATTRIBUTES, FMT, CODING)
-                        binary_file_serial = SerialFile(putanja, rec, F)
-                        if not (exists(putanja)):
-                            binary_file_serial.init_file()
                         temp = Spasavanje()
                         temp.pravljenje_objekta()
                         binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos==2:
                     if(binary_file!=""):
-                        putanja = binary_file.filename.split(".")[0] + "serial.dat"
-                        rec = Record(ATTRIBUTES, FMT, CODING)
-                        binary_file_serial = SerialFile(putanja, rec, F)
-                        if not (exists(putanja)):
-                            binary_file_serial.init_file()
                         temp = Spasavanje()
                         temp.promena_vrednosti()
                         binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos == 3:
                     if(binary_file!=""):
-                        putanja = binary_file.filename.split(".")[0] + "serial.dat"
-                        rec = Record(ATTRIBUTES, FMT, CODING)
-                        binary_file_serial = SerialFile(putanja, rec, F)
                         temp = Spasavanje()
                         temp.logicko_brisanje()
                         binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
                 if unos == 4:
                     if (binary_file != ""):
-                        putanja = binary_file.filename.split(".")[0] + "serial.dat"
-                        rec = Record(ATTRIBUTES, FMT, CODING)
-                        binary_file_serial = SerialFile(putanja, rec, F)
                         temp = Spasavanje()
                         temp.pravo_brisanje()
                         binary_file_serial.insert_record_no_id_check(temp.vrati_vrednost())
 
-            putanja = binary_file.filename.split(".")[0] + "serial.dat"
-            rec = Record(ATTRIBUTES, FMT, CODING)
-            binary_file_serial = SerialFile(putanja, rec, F)
             lista = binary_file_serial.get_sorted_content_of_file()
 
             putanjaDruga = binary_file.filename.split(".")[0] + "sequential.dat"
             rec = Record(ATTRIBUTES, FMT, CODING)
             binary_file_sequential = SequentialFile(putanjaDruga, rec, F)
-
             binary_file_sequential.init_file()
+
             for i in lista:
                 binary_file_sequential.insert_record_no_id_check(i)
-            binary_file_serial.init_file()
 
             putanjaGreska = binary_file.filename.split(".")[0] + "greske.dat"
             tempAttributes = ["id", "opis_greske"]
@@ -147,8 +130,11 @@ if __name__ == '__main__':
 
         if unos == 6:
             if binary_file!="" and binary_file_izlazna!="" and binary_file_greska!="":
+                print("Aktivna datoteka")
                 binary_file.print_file()
+                print("Izlazna datoteka")
                 binary_file_izlazna.print_file()
+                print("Datoteka gresaka")
                 binary_file_greska.print_file()
 
 

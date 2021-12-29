@@ -50,6 +50,8 @@ class BinaryFile:
 
     def print_block(self, b):
         for i in range(self.blocking_factor):
+            if b[i]["id"] == -1:
+                break
             print(str(b[i]) + " Broj sloga "+ str(i))
 
     def get_empty_rec(self):
