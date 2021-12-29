@@ -14,12 +14,12 @@ if __name__ == '__main__':
     binary_file_greska=""
     while True:
         print("Sta zelite od opcija (unesite broj da odaberete, 0 za iskljucivanje programa):\n"
-              "1.formiranje prazne datoteke pri čemu korisnik zadaje naziv nove datoteke\n"
-              "2.izbor aktivne datoteke zadavanjem njenog naziva\n"
-              "3.prikaz naziva aktivne datoteke\n"
+              "1.Formiranje prazne datoteke\n"
+              "2.Izbor aktivne datoteke zadavanjem njenog naziva\n"
+              "3.Prikaz naziva aktivne datoteke\n"
               "4.Pocni operaciju\n"
-              "5.Ucitati test primer\n"
-              "6.Ispis aktivne, izlazne i datoteke gresaka")
+              "5.Ispis aktivne, izlazne i datoteke gresaka\n"
+              "6.Ucitati test primer")
         unos = int(input("Unesite ovde opciju:"))
         if(unos==0):
             break
@@ -51,10 +51,13 @@ if __name__ == '__main__':
             binary_file_serial.init_file()
         if(unos==3):
             if binary_file!="":
-                print("Naziv fajla " + binary_file.filename)
+                print("Naziv fajla: " + binary_file.filename.split("/")[1])
             else:
                 print("Niste odabrali aktivni fajl!")
         if(unos==4):
+            if binary_file == "":
+                print("Morate uneti naziv aktivne datoteke!")
+                continue
             putanja = binary_file.filename.split(".")[0] + "serial.dat"
             rec = Record(ATTRIBUTES, FMT, CODING)
             binary_file_serial = SerialFile(putanja, rec, F)
@@ -117,7 +120,16 @@ if __name__ == '__main__':
 
             binary_file_sequential.mergovanje_izlazne_aktivne(binary_file_izlazna, binary_file_greska)
 
-        if unos==5:
+        if unos == 5:
+            if binary_file!="" and binary_file_izlazna!="" and binary_file_greska!="":
+                print("Aktivna datoteka")
+                binary_file.print_file()
+                print("Izlazna datoteka")
+                binary_file_izlazna.print_file()
+                print("Datoteka gresaka")
+                binary_file_greska.print_file()
+
+        if unos==6:
             if binary_file!="":
                 with open("data/test.csv", "r") as f:
                     while True:
@@ -127,16 +139,6 @@ if __name__ == '__main__':
                         lista = temp.split(",")
 
                         binary_file.insert_record({"id":int(lista[0]),"ime_i_prezime":lista[1],"datum_i_vreme":lista[2],"oznaka_spasioca":lista[3],"trajanje_spasavanja":int(lista[4]),"status":1})
-
-        if unos == 6:
-            if binary_file!="" and binary_file_izlazna!="" and binary_file_greska!="":
-                print("Aktivna datoteka")
-                binary_file.print_file()
-                print("Izlazna datoteka")
-                binary_file_izlazna.print_file()
-                print("Datoteka gresaka")
-                binary_file_greska.print_file()
-
 
 
 
