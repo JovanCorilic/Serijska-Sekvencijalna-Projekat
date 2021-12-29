@@ -42,6 +42,7 @@ class SerialFile(BinaryFile):
                 self.write_block(f, block)
 
     def insert_record_no_id_check(self,rec):
+        self.find_by_id(rec.get("id"))
         with open(self.filename, "rb+") as f:
             f.seek(-self.block_size, 2)  # citamo poslednji blok
             block = self.read_block(f)

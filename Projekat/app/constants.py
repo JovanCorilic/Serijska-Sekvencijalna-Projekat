@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # 1 - kreacija , 2 - promena, 3 - logicko brisanje, 4 - pravo brisanje
 ATTRIBUTES = ["id", "ime_i_prezime", "datum_i_vreme","oznaka_spasioca", "trajanje_spasavanja", "status","svrha"]
-FMT = "i60s17s5siii"
+FMT = "i60s20s5siii"
 CODING = "ascii"
 
 F = 5
